@@ -1,5 +1,6 @@
 import { ServiceLayout } from "@/components/service_layout";
-import { Avatar, Box, Button, Flex, Text, Textarea, useToast } from "@chakra-ui/react";
+import { useAuth } from "@/contexts/auth_user.context";
+import { Avatar, Box, Button, Flex, FormControl, FormLabel, Switch, Text, Textarea, useToast } from "@chakra-ui/react";
 import { NextPage } from "next";
 import { useState } from "react";
 import ResizeTextArea from 'react-textarea-autosize';
@@ -13,7 +14,9 @@ const userInfo = {
 
 const UserHomePage: NextPage = () => {
     const [message, setMessage] = useState('');
+    const [isAnonymous, setAnonymous] = useState(true);
     const toast = useToast();
+    const { authUser } = useAuth();
     return (
         <ServiceLayout title="user home" minH="100vh" backgroundColor="gray.50">
             <Box maxW="md" mx="auto" pt="6">
@@ -28,7 +31,10 @@ const UserHomePage: NextPage = () => {
                 </Box>
                 <Box borderWidth="1px" borderRadius="lg" overflow="hidden" mb="2" bg="white">
                     <Flex align="center" p="2">
-                        <Avatar size="xs" src="https://bit.ly/brokken-link" mr="2" />
+                        <Avatar
+                            size="xs"
+                            src={isAnonymous ? "https://bit.ly/brokken-link" : authUser?.photoURL ?? "https://bit.ly/brokken-link"}
+                            mr="2" />
                         <Textarea
                             bg="gray.100"
                             border="none"
@@ -62,6 +68,25 @@ const UserHomePage: NextPage = () => {
                             variant="solid"
                             size="sm">등록</Button>
                     </Flex>
+                    <FormControl display="flex" alignItems="center" mt="1" mx="2" pb="2">
+                        <Switch
+                            size="sm"
+                            colorScheme="orange"
+                            id="anonymous"
+                            mr ="1"
+                            isChecked={isAnonymous}
+                            onChange={()=>{
+                                if (authUser === null) {
+                                    toast({title: '로그인이 필요합니다.', position: 'top-right'});
+                                    return;
+                                }
+                                setAnonymous((prev) => !prev)
+                            }}
+                        />
+                        <FormLabel htmlFor="anonymous" mb="0" fontSize="xx-small">
+                            Anonymous
+                        </FormLabel>
+                    </FormControl>
                 </Box>
             </Box>
         </ServiceLayout>
